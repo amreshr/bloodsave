@@ -1,32 +1,57 @@
-
-import tweepy
-from tweepy import Stream
+from __future__ import absolute_import, print_function
+import json
+from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
-from tweepy.streaming import Stream
+from tweepy import Stream
+import tweepy
+from twit import sortdata
+from nltk.tokenize import RegexpTokenizer
+tokenizer = RegexpTokenizer(r'\w+')
 
-#from our keys module (keys.py), import the keys dictionary
-#from keys import keys
+consumer_key=""
+consumer_secret=""
+
+access_token=""
+access_token_secret=""
+
+class StdOutListener(StreamListener):
+    """ A listener handles tweets that are received from the stream.
+    This is a basic listener that just prints received tweets to stdout.
+    """
+    def on_data(self, data):
+
+        b = json.loads(data)['text']
+        if(sortdata(b)):
+
+            conv_string = str(data)
+            clean_txt = tokenizer.tokenize(conv_string)
+            print(clean_txt)
+            nameindex = clean_txt.index('screen_name')
+            
+            api.update_status("Hey @" +clean_txt[nameindext8 + 1]+ " DM us for donors" + " twitter.com/messages/compose?recipient_id=880311983219777538&text=Hey",
+                              in_reply_to_status_id=clean_txt[10])
+
+        return True
+
+    def on_error(self, status):
+        print(status)
 
 
 
-#consumer key, consumer secret, access token, access secret.
-ckey="gD1htH3K7fBXSrHiepeYqoXWz"
-csecret="vrLyNmQITu17UBWODs8quGAVHOgslgesdolc9Icy4F5rzVhXwn"
-atoken="421846847-IHwrpsRBevYZ5HYtqBCEhr6vklrQf9foq0bPi5W1"
-asecret="hpsLkhrGxFhYu4qjq2x01LZag1AQ4YEvGDVw7SWJMjaLB"
-     
-auth =tweepy.OAuthHandler(ckey, csecret)
-auth.set_access_token(atoken, asecret)
-api = tweepy.API(auth)
-twts = api.search(q="Hi")
+if __name__ == '__main__':
+    l = StdOutListener()
+    auth = OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
 
-#list of specific strings we want to check for in Tweets
-t = ['hi','hello','#throwback','#selfie','#tbt']
- 
-for s in twts:
-    for i in t:
-        if i == s.text:
-            sn = s.user.screen_name
-            m = "@%s Hello!" % (sn)
-            s = api.update_status(m, s.id)
-api.update_status('BamPageRo')
+    stream = Stream(auth, l)
+    stream.filter(track=['Need Blood','Blood Group'])
+
+
+
+
+
+
+
+
+
